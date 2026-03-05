@@ -7,7 +7,7 @@ from .models import Profile
 def assign_staff_permissions(user):
     # get all permissions for auth.user, profiles, cars, booking models
     staff_permissions = Permission.objects.filter(
-        content_type__app_label__in=['auth', 'profiles', 'cars', 'booking']
+        content_type__app_label__in=['auth', 'profiles', 'cars', 'bookings']
     ).exclude(
         # staff cannot add/change/delete other staff or superusers
         codename__in=[

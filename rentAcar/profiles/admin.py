@@ -91,18 +91,9 @@ class CustomUserAdmin(ModelAdmin, UserAdmin):
             return qs.filter(is_staff=False, is_superuser=False) | qs.filter(pk=request.user.pk)
         return qs
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
-        if obj:
-            # superuser cannot change another superuser's password
-            if obj.is_superuser and obj.pk != request.user.pk:
-                if 'password' in form.base_fields:
-                    form.base_fields['password'].disabled = True
-            # staff cannot change their own password
-            if not request.user.is_superuser and obj.pk == request.user.pk:
-                if 'password' in form.base_fields:
-                    form.base_fields['password'].disabled = True
-        return form
+    # def get_form(self, request, obj=None, **kwargs):
+    #     form = super().get_form(request, obj, **kwargs)
+    #     return form
 
     def get_role(self, obj):
         if obj.is_superuser:
