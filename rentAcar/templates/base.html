@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RentACar</title>
+</head>
+<body>
+
+  {% if request.user.is_authenticated %}
+  <div style="background:#f0f0f0; padding:12px 20px; display:flex; justify-content:space-between; align-items:center;">
+
+    <div>
+      <strong>Welcome, {{ request.user.get_full_name|default:request.user.username }}!</strong>
+      &nbsp;|&nbsp;
+      {% if request.user.is_superuser %}
+        <span style="color:darkred;">🛡 Admin</span>
+      {% elif request.user.is_staff %}
+        <span style="color:darkblue;">⚙️ Staff</span>
+      {% elif request.user.profile.role == 'car_owner' %}
+        <span style="color:darkorange;">🚗 Car Owner</span>
+      {% elif request.user.profile.role == 'customer' %}
+        <span style="color:green;">👤 Customer</span>
+      {% endif %}
+    </div>
+
+    <div>
+      <a href="{% url 'bookings:list' %}">Bookings</a>
+      &nbsp;|&nbsp;
+      <form method="post" action="{% url 'logout' %}" style="display:inline;">
+  {% csrf_token %}
+  <button type="submit" style="background:none; border:none; cursor:pointer; color:inherit; text-decoration:underline;">Logout</button>
+</form>
+    </div>
+
+  </div>
+  {% endif %}
+
+  <div style="padding: 20px;">
+
+    {% if messages %}
+      {% for msg in messages %}
+        <p style="color:green;">{{ msg }}</p>
+      {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+  </div>
+
+</body>
+</html>

@@ -30,6 +30,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+        'rentAcar.middleware.IdleSessionTimeoutMiddleware',  # ← add this
+
 ]
 
 ROOT_URLCONF = 'rentAcar.urls'
@@ -37,7 +39,7 @@ ROOT_URLCONF = 'rentAcar.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],  # add this
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -75,6 +77,13 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True   # session dies when browser is closed
+SESSION_COOKIE_AGE = 60 * 60 * 8        # or max 8 hours even if browser stays open
+
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_USE_SESSIONS = False
+CSRF_COOKIE_HTTPONLY = False
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Baku'

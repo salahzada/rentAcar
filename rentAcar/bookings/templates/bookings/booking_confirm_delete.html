@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Delete Booking #{{ booking.id }}?</h2>
+<p>Car: <strong>{{ booking.car }}</strong></p>
+<p>Dates: {{ booking.start_date|date:"Y-m-d" }} → {{ booking.end_date|date:"Y-m-d" }}</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Yes, Delete</button>
+  <a href="{% url 'bookings:list' %}">Cancel</a>
+</form>
+{% endblock %}
