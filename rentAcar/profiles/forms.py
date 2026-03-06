@@ -20,8 +20,18 @@ class RegisterForm(forms.Form):
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
-        if User.objects.filter(username=username).exists():
-            raise forms.ValidationError('This username is already taken.')
+        try:
+            user = User.objects.get(username=username)
+            # User exists — check if profile exists
+            try:
+                _ = user.profile
+                # Profile exists — username truly taken
+                raise forms.ValidationError('This username is already taken.')
+            except Profile.DoesNotExist:
+                # Orphaned user — delete it so registration can proceed
+                user.delete()
+        except User.DoesNotExist:
+            pass  # username is free — good
         return username
 
     def clean_email(self):
