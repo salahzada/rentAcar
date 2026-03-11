@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
+
 <h2>Delete Booking #{{ booking.id }}?</h2>
-<p>Car: <strong>{{ booking.car }}</strong></p>
-<p>Dates: {{ booking.start_date|date:"Y-m-d" }} → {{ booking.end_date|date:"Y-m-d" }}</p>
+<p><strong>Car:</strong> {{ booking.car.get_carBrand_display }} {{ booking.car.get_carModel_display }}</p>
+<p><strong>Dates:</strong> {{ booking.start_date|date:"Y-m-d" }} → {{ booking.end_date|date:"Y-m-d" }}</p>
+<p style="color:red;">⚠️ This will permanently delete the booking. A backup will be saved.</p>
+
 <form method="post">
   {% csrf_token %}
   <button type="submit">Yes, Delete</button>
-  <a href="{% url 'bookings:list' %}">Cancel</a>
+  <a href="{% url 'bookings:list' %}">Go Back</a>
 </form>
+
 {% endblock %}

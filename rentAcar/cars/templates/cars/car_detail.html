@@ -11,16 +11,28 @@
 <p><strong>Seats:</strong> {{ car.carSits }}</p>
 <p><strong>KM:</strong> {{ car.carKM }}</p>
 <p><strong>Daily Rent Price:</strong> {{ car.dailyRentPrice }}</p>
+<p><strong>Car Location:</strong> {{ car.carLocation }}</p>
 <p><strong>Car ID Number:</strong> {{ car.carIdNumber }}</p>
 <p><strong>Registration Number:</strong> {{ car.carRegistrationNumber }}</p>
 <p><strong>Personal Car:</strong> {{ car.get_isPersonal_display }}</p>
 <p><strong>Owner:</strong> {{ car.profile.user.get_full_name|default:car.profile.user.username }}</p>
 
-{% if request.user.is_staff or request.user.is_superuser or car.profile == request.user.profile %}
+{# Customer: Book this car #}
+{% if request.user.profile.role == 'customer' %}
+  <a href="{% url 'bookings:create_for_car' car.pk %}" style="padding:8px 16px; background:#2196F3; color:white; text-decoration:none; border-radius:4px;">
+    + Book This Car
+  </a>
+{% endif %}
+
+{# admin/staff: Edit and Delete #}
+{% if request.user.is_staff or request.user.is_superuser %}
   <a href="{% url 'cars:update' car.pk %}">Edit</a>
+  <a href="{% url 'cars:delete' car.pk %}">Delete</a>
+{% elif car.profile == request.user.profile %}
   <a href="{% url 'cars:delete' car.pk %}">Delete</a>
 {% endif %}
 
+<br><br>
 <a href="{% url 'cars:list' %}">Back to list</a>
 
 {% endblock %}

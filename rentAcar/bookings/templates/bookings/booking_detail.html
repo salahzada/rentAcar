@@ -1,41 +1,40 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Bookings</h2>
 
-{% with role=request.user.profile.role %}
-  {% if request.user.is_staff or request.user.is_superuser or role == 'customer' %}
-    <a href="{% url 'bookings:create' %}">+ New Booking</a>
+<h2>Booking #{{ booking.id }}</h2>
+<p><strong>Car:</strong> {{ booking.car.get_carBrand_display }} {{ booking.car.get_carModel_display }} ({{ booking.car.carYear }})</p>
+<p><strong>Customer:</strong> {{ booking.profile.user.get_full_name|default:booking.profile.user.username }}</p>
+<p><strong>Start:</strong> {{ booking.start_date }}</p>
+<p><strong>End:</strong> {{ booking.end_date }}</p>
+<p><strong>Status:</strong>
+  {% if booking.status == 'pending' %}
+    <span style="color:orange;">⏳ Pending</span>
+  {% elif booking.status == 'confirmed' %}
+    <span style="color:green;">✅ Confirmed</span>
+  {% elif booking.status == 'cancelled' %}
+    <span style="color:red;">❌ Cancelled</span>
   {% endif %}
-{% endwith %}
+</p>
+<p><strong>Total Price:</strong> {{ booking.total_price }}</p>
+<p><strong>Notes:</strong> {{ booking.notes|default:"-" }}</p>
 
-<table>
-  <thead>
-    <tr>
-      <th>#</th><th>Car</th><th>Customer</th>
-      <th>Start</th><th>End</th><th>Status</th><th>Price</th><th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-  {% for b in bookings %}
-    <tr>
-      <td>{{ b.id }}</td>
-      <td>{{ b.car }}</td>
-      <td>{{ b.profile.user.get_full_name|default:b.profile.user.username }}</td>
-      <td>{{ b.start_date|date:"Y-m-d H:i" }}</td>
-      <td>{{ b.end_date|date:"Y-m-d H:i" }}</td>
-      <td>{{ b.get_status_display }}</td>
-      <td>{{ b.total_price }}</td>
-      <td>
-        <a href="{% url 'bookings:detail' b.pk %}">View</a>
-        {% if request.user.is_staff or request.user.is_superuser or b.profile.user == request.user %}
-          <a href="{% url 'bookings:update' b.pk %}">Edit</a>
-          <a href="{% url 'bookings:delete' b.pk %}">Delete</a>
-        {% endif %}
-      </td>
-    </tr>
-  {% empty %}
-    <tr><td colspan="8">No bookings found.</td></tr>
-  {% endfor %}
-  </tbody>
-</table>
+{% if booking.status != 'cancelled' %}
+  {% if booking.profile.user == request.user or request.user.is_staff or request.user.is_superuser %}
+    <a href="{% url 'bookings:cancel' booking.pk %}">Cancel Booking</a>
+  {% endif %}
+  {% if request.user.profile.role == 'car_owner' and booking.car.profile == request.user.profile and booking.status == 'pending' %}
+    <form method="post" action="{% url 'bookings:confirm' booking.pk %}" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit">✅ Confirm Booking</button>
+    </form>
+  {% endif %}
+{% endif %}
+
+{% if request.user.is_staff or request.user.is_superuser %}
+  <a href="{% url 'bookings:update' booking.pk %}">Edit</a>
+  <a href="{% url 'bookings:delete' booking.pk %}">Delete</a>
+{% endif %}
+
+<br><a href="{% url 'bookings:list' %}">Back to list</a>
+
 {% endblock %}

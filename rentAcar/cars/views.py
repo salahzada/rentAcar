@@ -156,6 +156,7 @@ class CarDeleteView(CarAccessMixin, DeleteView):
             karopkaType=car.karopkaType,
             dailyRentPrice=car.dailyRentPrice,
             carIdNumber=car.carIdNumber,
+            carLocation=car.carLocation,
             carRegistrationNumber=car.carRegistrationNumber,
             carColor=car.carColor,
             carMotor=car.carMotor,

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Cancel Booking #{{ booking.id }}?</h2>
+<p><strong>Car:</strong> {{ booking.car.get_carBrand_display }} {{ booking.car.get_carModel_display }}</p>
+<p><strong>Customer:</strong> {{ booking.profile.user.get_full_name|default:booking.profile.user.username }}</p>
+<p><strong>Dates:</strong> {{ booking.start_date|date:"Y-m-d" }} → {{ booking.end_date|date:"Y-m-d" }}</p>
+<p><strong>Status:</strong> {{ booking.get_status_display }}</p>
+<p style="color:orange;">⚠️ This cancellation will be logged and counted against your profile.</p>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" style="color:red;">Yes, Cancel Booking</button>
+  <a href="{% url 'bookings:list' %}">Go Back</a>
+</form>
+
+{% endblock %}
