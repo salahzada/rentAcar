@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>{{ car.get_carBrand_display }} {{ car.get_carModel_display }} ({{ car.carYear }})</h2>
+
+<p><strong>Category:</strong> {{ car.get_carCategory_display }}</p>
+<p><strong>Color:</strong> {{ car.get_carColor_display }}</p>
+<p><strong>Fuel Type:</strong> {{ car.get_carFuelType_display }}</p>
+<p><strong>Transmission:</strong> {{ car.get_karopkaType_display }}</p>
+<p><strong>Engine:</strong> {{ car.carMotor }}L</p>
+<p><strong>Seats:</strong> {{ car.carSits }}</p>
+<p><strong>KM:</strong> {{ car.carKM }}</p>
+<p><strong>Daily Rent Price:</strong> {{ car.dailyRentPrice }}</p>
+<p><strong>Car ID Number:</strong> {{ car.carIdNumber }}</p>
+<p><strong>Registration Number:</strong> {{ car.carRegistrationNumber }}</p>
+<p><strong>Personal Car:</strong> {{ car.get_isPersonal_display }}</p>
+<p><strong>Owner:</strong> {{ car.profile.user.get_full_name|default:car.profile.user.username }}</p>
+
+{% if request.user.is_staff or request.user.is_superuser or car.profile == request.user.profile %}
+  <a href="{% url 'cars:update' car.pk %}">Edit</a>
+  <a href="{% url 'cars:delete' car.pk %}">Delete</a>
+{% endif %}
+
+<a href="{% url 'cars:list' %}">Back to list</a>
+
+{% endblock %}

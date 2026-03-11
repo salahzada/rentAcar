@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Cars</h2>
+
+{% with role=request.user.profile.role %}
+  {% if request.user.is_staff or request.user.is_superuser or role == 'car_owner' %}
+    <a href="{% url 'cars:create' %}">+ Add Car</a>
+  {% endif %}
+{% endwith %}
+
+<table>
+  <thead>
+    <tr>
+      <th>Brand</th>
+      <th>Model</th>
+      <th>Year</th>
+      <th>Category</th>
+      <th>Daily Price</th>
+      <th>Owner</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for car in cars %}
+    <tr>
+      <td>{{ car.get_carBrand_display }}</td>
+      <td>{{ car.get_carModel_display }}</td>
+      <td>{{ car.carYear }}</td>
+      <td>{{ car.get_carCategory_display }}</td>
+      <td>{{ car.dailyRentPrice }}</td>
+      <td>{{ car.profile.user.get_full_name|default:car.profile.user.username }}</td>
+      <td>
+        <a href="{% url 'cars:detail' car.pk %}">View</a>
+        {% if request.user.is_staff or request.user.is_superuser or car.profile == request.user.profile %}
+          <a href="{% url 'cars:update' car.pk %}">Edit</a>
+          <a href="{% url 'cars:delete' car.pk %}">Delete</a>
+        {% endif %}
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="7">No cars found.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

@@ -5,6 +5,48 @@ from datetime import datetime
 def year_choices():
     return [(year, year) for year in range(1918, datetime.now().year + 1)]
 
+class DeletedCar(models.Model):
+    # Original car data snapshot
+    original_car_id = models.IntegerField()
+    carBrand = models.CharField(max_length=100)
+    carModel = models.CharField(max_length=100)
+    carCategory = models.CharField(max_length=100)
+    carYear = models.IntegerField()
+    carKM = models.DecimalField(max_digits=10, decimal_places=2)
+    carFuelType = models.CharField(max_length=50, null=True, blank=True)
+    bensinType = models.CharField(max_length=50, null=True, blank=True)
+    carType = models.CharField(max_length=50)
+    karopkaType = models.CharField(max_length=50)
+    dailyRentPrice = models.DecimalField(max_digits=10, decimal_places=0)
+    carIdNumber = models.CharField(max_length=100)
+    carRegistrationNumber = models.CharField(max_length=100)
+    carColor = models.CharField(max_length=100)
+    carMotor = models.DecimalField(max_digits=5, decimal_places=1)
+    carSits = models.IntegerField()
+    isPersonal = models.CharField(max_length=10)
+
+    # Who owned it
+    owner_username = models.CharField(max_length=150)
+    owner_full_name = models.CharField(max_length=300, null=True, blank=True)
+
+    # When it was deleted and by whom
+    deleted_at = models.DateTimeField(auto_now_add=True)
+    deleted_by = models.ForeignKey(
+        'auth.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='deleted_cars'
+    )
+
+    def __str__(self):
+        return f"[DELETED] {self.carBrand} {self.carModel} ({self.carYear}) — {self.deleted_at.strftime('%Y-%m-%d %H:%M')}"
+
+    class Meta:
+        db_table = "deleted_cars"
+        ordering = ["-deleted_at"]
+        verbose_name = "Deleted Car"
+        verbose_name_plural = "Deleted Cars"
 
 class Car(models.Model):
 

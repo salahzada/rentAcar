@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Delete Car?</h2>
+<p><strong>{{ car.get_carBrand_display }} {{ car.get_carModel_display }} ({{ car.carYear }})</strong></p>
+<p>This action cannot be undone.</p>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Yes, Delete</button>
+  <a href="{% url 'cars:list' %}">Cancel</a>
+</form>
+
+{% endblock %}

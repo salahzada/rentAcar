@@ -24,12 +24,20 @@
     </div>
 
     <div>
-      <a href="{% url 'bookings:list' %}">Bookings</a>
+      {% if request.user.profile.role == 'car_owner' %}
+        <a href="{% url 'cars:list' %}">My Cars</a>
+        &nbsp;|&nbsp;
+        <a href="{% url 'bookings:list' %}">Bookings</a>
+      {% elif request.user.profile.role == 'customer' %}
+        <a href="{% url 'cars:list' %}">Browse Cars</a>
+        &nbsp;|&nbsp;
+        <a href="{% url 'bookings:list' %}">My Bookings</a>
+      {% endif %}
       &nbsp;|&nbsp;
       <form method="post" action="{% url 'logout' %}" style="display:inline;">
-  {% csrf_token %}
-  <button type="submit" style="background:none; border:none; cursor:pointer; color:inherit; text-decoration:underline;">Logout</button>
-</form>
+        {% csrf_token %}
+        <button type="submit" style="background:none; border:none; cursor:pointer; color:inherit; text-decoration:underline;">Logout</button>
+      </form>
     </div>
 
   </div>
