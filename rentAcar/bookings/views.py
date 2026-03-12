@@ -6,6 +6,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .models import Booking, DeletedBooking
 from .forms import BookingForm, BookingAdminForm
 from cars.models import Car
+import json
+from datetime import timedelta
 
 
 class BookingAccessMixin(LoginRequiredMixin):
@@ -53,10 +55,10 @@ class BookingListView(BookingAccessMixin, ListView):
             qs = qs.filter(status=status_filter)
 
         if date_from:
-            qs = qs.filter(start_date__date__gte=date_from)
+            qs = qs.filter(start_date__gte=date_from)
 
         if date_to:
-            qs = qs.filter(end_date__date__lte=date_to)
+            qs = qs.filter(end_date__lte=date_to)
 
         return qs
 
@@ -106,7 +108,6 @@ class BookingCreateView(BookingAccessMixin, CreateView):
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        # Pre-select car if car_id is passed in URL
         car_id = self.kwargs.get('car_id')
         if car_id and 'car' in form.fields:
             form.fields['car'].initial = car_id
@@ -131,7 +132,21 @@ class BookingCreateView(BookingAccessMixin, CreateView):
         ctx['action'] = 'Create Booking'
         car_id = self.kwargs.get('car_id')
         if car_id:
-            ctx['selected_car'] = get_object_or_404(Car, pk=car_id)
+            car = get_object_or_404(Car, pk=car_id)
+            ctx['selected_car'] = car
+
+            booked_ranges = Booking.objects.filter(
+                car=car,
+            ).exclude(status='cancelled').values_list('start_date', 'end_date')
+
+            disabled_dates = []
+            for start, end in booked_ranges:
+                current = start
+                while current <= end:
+                    disabled_dates.append(current.strftime('%Y-%m-%d'))
+                    current += timedelta(days=1)
+
+            ctx['disabled_dates'] = json.dumps(disabled_dates)
         return ctx
 
 
@@ -148,6 +163,8 @@ class BookingUpdateView(BookingAccessMixin, UpdateView):
         if role in ('admin', 'staff'):
             return obj
         if role == 'customer' and obj.profile == profile:
+            if obj.status == 'pending':
+                raise PermissionDenied
             return obj
 
         raise PermissionDenied
@@ -209,7 +226,6 @@ class BookingCancelView(BookingAccessMixin, View):
         if role in ('admin', 'staff'):
             cancelled_by = role
         elif role == 'customer' and booking.profile == profile:
-            # Customer can only cancel pending or confirmed bookings
             if booking.status not in ('pending', 'confirmed'):
                 raise PermissionDenied
             cancelled_by = 'customer'
@@ -218,7 +234,6 @@ class BookingCancelView(BookingAccessMixin, View):
         else:
             raise PermissionDenied
 
-        # Save backup first
         DeletedBooking.objects.create(
             original_booking_id=booking.pk,
             customer_username=booking.profile.user.username,
@@ -236,7 +251,6 @@ class BookingCancelView(BookingAccessMixin, View):
             deleted_by=request.user,
         )
 
-        # Delete from live table
         booking.status = 'cancelled'
         booking.save()
 

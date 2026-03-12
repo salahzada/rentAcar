@@ -4,8 +4,8 @@
 <h2>Booking #{{ booking.id }}</h2>
 <p><strong>Car:</strong> {{ booking.car.get_carBrand_display }} {{ booking.car.get_carModel_display }} ({{ booking.car.carYear }})</p>
 <p><strong>Customer:</strong> {{ booking.profile.user.get_full_name|default:booking.profile.user.username }}</p>
-<p><strong>Start:</strong> {{ booking.start_date }}</p>
-<p><strong>End:</strong> {{ booking.end_date }}</p>
+<p><strong>Start:</strong> {{ booking.start_date|date:"Y-m-d" }}</p>
+<p><strong>End:</strong> {{ booking.end_date|date:"Y-m-d" }}</p>
 <p><strong>Status:</strong>
   {% if booking.status == 'pending' %}
     <span style="color:orange;">⏳ Pending</span>

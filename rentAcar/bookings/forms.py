@@ -7,8 +7,8 @@ class BookingForm(forms.ModelForm):
         model = Booking
         fields = ['car', 'start_date', 'end_date', 'notes']
         widgets = {
-            'start_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'end_date':   forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'start_date': forms.DateInput(attrs={'type': 'date', 'id': 'id_start_date'}),
+            'end_date':   forms.DateInput(attrs={'type': 'date', 'id': 'id_end_date'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -37,9 +37,8 @@ class BookingForm(forms.ModelForm):
 
             if overlapping.exists():
                 raise forms.ValidationError(
-                    f'This car is already booked between {start.strftime("%Y-%m-%d %H:%M")} '
-                    f'and {end.strftime("%Y-%m-%d %H:%M")}. Please choose different dates.'
-                )
+        f'This car is already booked for the selected dates. Please choose different dates.'
+    )
 
         return cleaned_data
 
@@ -50,6 +49,6 @@ class BookingAdminForm(forms.ModelForm):
         fields = ['profile', 'car', 'start_date', 'end_date', 'status',
                   'total_price', 'notes']
         widgets = {
-            'start_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'end_date':   forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'start_date': forms.DateInput(attrs={'type': 'date', 'id': 'id_start_date'}),
+            'end_date':   forms.DateInput(attrs={'type': 'date', 'id': 'id_end_date'}),
         }

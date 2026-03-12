@@ -4,12 +4,29 @@
 <h2>{{ action }}</h2>
 
 {% if selected_car %}
-  <div style="background:#f9f9f9; padding:12px; margin-bottom:16px; border-left:4px solid #2196F3;">
+  <div style="background:#e3f2fd; padding:12px; margin-bottom:16px; border-left:4px solid #2196F3; border-radius:4px;">
     <strong>Booking for:</strong>
     {{ selected_car.get_carBrand_display }} {{ selected_car.get_carModel_display }}
-    ({{ selected_car.carYear }}) — {{ selected_car.dailyRentPrice }} / day
+    ({{ selected_car.carYear }}) — {{ selected_car.dailyRentPrice }} AZN / day
   </div>
 {% endif %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<style>
+  .booked-day {
+    background-color: #e53935 !important;
+    color: white !important;
+    border-radius: 4px !important;
+    opacity: 1 !important;
+    cursor: not-allowed !important;
+    text-decoration: line-through;
+  }
+  .booked-day:hover {
+    background-color: #c62828 !important;
+  }
+</style>
 
 <form method="post">
   {% csrf_token %}
@@ -20,5 +37,76 @@
   <button type="submit">{{ action }}</button>
   <a href="{% url 'cars:list' %}">Cancel</a>
 </form>
+
+{% if disabled_dates %}
+<div style="margin-top:12px; display:flex; gap:16px; font-size:13px;">
+  <div style="display:flex; align-items:center; gap:6px;">
+    <div style="width:14px; height:14px; background:#e53935; border-radius:3px;"></div>
+    Already booked
+  </div>
+  <div style="display:flex; align-items:center; gap:6px;">
+    <div style="width:14px; height:14px; background:#2196F3; border-radius:3px;"></div>
+    Selected
+  </div>
+</div>
+{% endif %}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+
+    {% if disabled_dates %}
+    const disabledDates = {{ disabled_dates|safe }};
+    {% else %}
+    const disabledDates = [];
+    {% endif %}
+
+    function getLocalDateStr(dateObj) {
+      return dateObj.getFullYear() + '-' +
+        String(dateObj.getMonth() + 1).padStart(2, '0') + '-' +
+        String(dateObj.getDate()).padStart(2, '0');
+    }
+
+    function applyBookedStyle(dayElem) {
+      if (!dayElem.dateObj) return;
+      const dateStr = getLocalDateStr(dayElem.dateObj);
+      if (disabledDates.includes(dateStr)) {
+        setTimeout(function () {
+          dayElem.classList.add('booked-day');
+          dayElem.title = "Already booked";
+        }, 0);
+      }
+    }
+
+    function onDayCreate(dObj, dStr, fp, dayElem) {
+      applyBookedStyle(dayElem);
+    }
+
+    function onMonthChange(selectedDates, dateStr, instance) {
+      instance.days.querySelectorAll('.flatpickr-day').forEach(applyBookedStyle);
+    }
+
+    const startPicker = flatpickr("#id_start_date", {
+      dateFormat: "Y-m-d",
+      minDate: "today",
+      disable: disabledDates,
+      onDayCreate: onDayCreate,
+      onMonthChange: onMonthChange,
+      onChange: function (selectedDates, dateStr) {
+        if (dateStr) {
+          endPicker.set("minDate", dateStr);
+        }
+      }
+    });
+
+    const endPicker = flatpickr("#id_end_date", {
+      dateFormat: "Y-m-d",
+      minDate: "today",
+      disable: disabledDates,
+      onDayCreate: onDayCreate,
+      onMonthChange: onMonthChange,
+    });
+
+  });
+</script>
 
 {% endblock %}
